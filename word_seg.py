@@ -5,14 +5,18 @@ from utils import *
 # 输入图像应为整个手机截屏图
 
 class QuizReader:
-    def __init__(self,img_path):
+    def __init__(self):
+        pass
+    def run(self,img_path):# 输入为手机截屏图像路径
         self.origin_img = cv2.imread(img_path)
         self.origin_img_gray = cv2.cvtColor(self.origin_img,code=cv2.COLOR_BGR2GRAY)
-        self.line_height = 40 #行高
+        self.line_height = (40/1334)*self.origin_img_gray.shape[0] #行间距
         self.crop_ROI()
         self.extract_bbox()
         self.sort_rects()
         self.get_single_words()
+
+    # 切割题目区域
     def crop_ROI(self):
         self.crop_coordinates = {
             'x':int((50/750)*self.origin_img_gray.shape[1]),
@@ -26,7 +30,7 @@ class QuizReader:
         h = self.crop_coordinates['h']
         w = self.crop_coordinates['w']
         self.crop_img = self.origin_img_gray[y:y + h, x:x + w]  # img[top: bottom, left: right]
-
+    # 获取每个文字的bbox
     def extract_bbox(self):
         height, width = self.crop_img.shape
 
@@ -83,15 +87,17 @@ class QuizReader:
         # cv2.imshow('origin vis4', vis4)
         # cv2.imshow('rect', vis2)
         # cv2.imshow('mergerect', vis3)
-        # cv2.imshow('reducerect', vis4)
+        cv2.imshow('reducerect', vis4)
         # cv2.waitKey()
+
+    # 按照文字的纵向位置排序
     def sort_by_y(self,rects):
         return sorted(rects,key=lambda x:(x[3]+x[1])/2)
+    # 按照文字的横向位置排序
     def sort_by_x(self,rects):
         return sorted(rects,key=lambda x:(x[0]+x[2])/2)
-
+    # 将所有文字框排成一行
     def sort_rects(self):
-
         self.all_rects = self.sort_by_y(self.all_rects)
         y_gradients = []
         y_value=[]
@@ -102,17 +108,16 @@ class QuizReader:
         print(self.all_rects)
         print(y_value)
         print(y_gradients)
-        # [33, 31, 30, 49, 31, 30, 36, 36, 31, 31, 31, 31, 31, 34, 40, 99, 95, 95]
-        # [-2, -1, 19, -18, -1, 6, 0, -5, 0, 0, 0, 0, 3, 6, 59, -4, 0, 1]
 
         max_y = max(y_gradients)
         if max_y > self.line_height:# 分行
             max_y_index = y_gradients.index(max_y)
-            line1 = self.all_rects[0:max_y_index]
-            line2 = self.all_rects[max_y_index:]
+            line1 = self.all_rects[0:max_y_index+1]
+            line2 = self.all_rects[max_y_index+1:]
             line1 = self.sort_by_x(line1)
-            line2 = self.sort_by_y(line2)
-            self.all_rects = line1.extend(line2)
+            line2 = self.sort_by_x(line2)
+            line1.extend(line2)
+            self.all_rects =line1
         else:
             self.all_rects = self.sort_by_x(self.all_rects)
 
@@ -124,6 +129,7 @@ class QuizReader:
             cv2.waitKey()
             cv2.destroyWindow('word')
 
-qr = QuizReader('1.PNG')
+qr = QuizReader()
+qr.run('5.PNG')
 
 exit()
