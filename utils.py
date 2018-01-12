@@ -1,5 +1,4 @@
 import cv2
-
 # 判断两矩形是否相交，若相交返回相交面积，否则返回-1
 def rect_interaction(rect1,rect2):
     #rect1 = [x1,y1,x2,y2]  x1,y1 左上角矩形坐标 x2,y2 右下角矩形坐标
@@ -45,5 +44,17 @@ def reduce_rects(rects,thresh_area):
 def draw_rects(image,rects):
     for rs in rects:
         image = cv2.rectangle(image, (rs[0], rs[1]), (rs[2], rs[3]), (0))
-
     return image
+
+# 按照new_long大小来
+def image_resize(image,new_long):
+    h = image.shape[0]
+    w = image.shape[1]
+    if w >= h:
+        new_w = new_long
+        new_h = (new_w*h)/w
+    else:
+        new_h = new_long
+        new_w = (new_h*w)/h
+
+    return cv2.resize(image,(int(new_w),int(new_h)))
