@@ -8,9 +8,9 @@ import time
 # 输入图像应为整个手机截屏图
 
 class QuizReader:
-    def __init__(self,setting):
+    def __init__(self,setting,model_path,source_path):
         self.setting = setting
-        self.load_model('chnData_resnet.h5','source.txt')
+        self.load_model(model_path,source_path)
         # 当前设置适合冲顶大会
         # self.question_ratio={'x':0.0667,'y':0.2249,'w':0.8667,'h':0.1124}
         # self.answer1_ratio ={'x':0.12,'y':0.41,'w':0.7,'h':0.05}
@@ -88,6 +88,8 @@ class QuizReader:
         elif len(self.all_rects)>1:
             self.sort_rects()
             # img = draw_rects(self.crop_img,self.all_rects)
+            # cv2.imshow('aaa',img)
+            # cv2.waitKey()
         self.get_single_words()
         if len(self.all_words)<=0:
             return ''
@@ -108,8 +110,10 @@ class QuizReader:
         print(classes.shape)
         for c in classes:
             index = np.argmax(c)
-            # print(index)
-            sentence+=self.word_dict[index]
+            confidence = np.amax(c)
+            # print('置信度：',confidence)
+            if confidence >= self.setting['confidence_threshold']:
+                sentence+=self.word_dict[index]
         return sentence
         # print(classes)
     # 切割区域
@@ -184,7 +188,7 @@ class QuizReader:
 
         # vis3 = draw_rects(vis3, all_rects)
 
-        self.all_rects = reduce_rects(all_rects, thresh_area=100)
+        self.all_rects = reduce_rects(all_rects, thresh_area=self.setting['reduce_threshold']*self.setting['width'])
         # vis4 = draw_rects(vis4,all_rects)
 
         # cv2.imshow('1', self.crop_img)
@@ -270,16 +274,18 @@ class QuizReader:
 
 if __name__ == '__main__':
     android_setting = {
-        'x1': -500 / 720,
+        'x1': -500 / 720,#用来设置question的位置
         'x2': 120 / 720,
         'y1': 170 / 1280,
         'y2': -50 / 1280,
         'logo': '冲顶logo_android.jpg',
         'answer': '冲顶answer_android.jpg',
         'width': 720,
-        'height': 1280
+        'height': 1280,
+        'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
-    qr = QuizReader(android_setting)
+    qr = QuizReader(android_setting,'chnData_resnet.h5','source.txt')
     t0 = time.time()
     image = Image.open('test_images/冲顶1.jpg')
 
