@@ -1,5 +1,6 @@
 /chnData
-/images32
+/images32*
 /logs
 /test_images
-*.zip
+*.rar
+/.DrUnarchiver*

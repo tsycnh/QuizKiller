@@ -5,6 +5,10 @@ import os
 random.seed(0)
 root_dir = './images32/'
 target_dir = './chnData/'
+train_ratio = 0.8
+test_ratio = 1-train_ratio
+max_folder_digits_count = 4# 单个类别图片所在文件夹名称最长位数。比如0023,就是4。02399就是5
+# =========
 target_train_dir = target_dir+'train/'
 target_test_dir = target_dir+'test/'
 if os.path.exists(target_dir):
@@ -14,7 +18,7 @@ dirs = os.listdir(root_dir)
 def extend_name(origin):
     l = len(origin)
     output = ''
-    for i in range(4-l):# 一共4位
+    for i in range(max_folder_digits_count-l):# 一共4位
         output +='0'
     output += origin
     return output
@@ -37,11 +41,13 @@ for dir in dirs:
             d_img_paths.append(os.path.join(new_f_dir,f))
         random.shuffle(img_paths)
 
-        for i in range(0,6):
+        imgs_count = len(file)
+        split = int(train_ratio*imgs_count)
+        for i in range(0,split):
             target_path = d_img_paths[i].replace(root_dir,target_train_dir)
             shutil.copy(img_paths[i],target_path)
 
-        for i in range(6,8):
+        for i in range(split,imgs_count):
             target_path = d_img_paths[i].replace(root_dir,target_test_dir)
             shutil.copy(img_paths[i],target_path)
         print(f_dir,'copied')
