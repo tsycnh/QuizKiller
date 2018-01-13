@@ -42,6 +42,7 @@ def reduce_rects(rects,thresh_area):
 
 # 在图像中绘制矩形们
 def draw_rects(image,rects):
+    image = image.copy()
     for rs in rects:
         image = cv2.rectangle(image, (rs[0], rs[1]), (rs[2], rs[3]), (0))
     return image
