@@ -7,6 +7,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtWebKitWidgets import *
+# from PyQt5.QtWebEngineWidgets import *
 from PyQt5.QtGui import QKeyEvent
 
 import sys
@@ -25,6 +26,7 @@ class MainWindow(QMainWindow):
         self.show()
 
         # 设置浏览器
+        # self.browser = QWebEngineView()
         self.browser = QWebView()
         url = u'http://www.baidu.com/s?wd=中国'
         # 指定打开界面的 URL
@@ -122,7 +124,7 @@ class MainWindow(QMainWindow):
         #evt = QKeyEvent(key=32,type=QEvent.Type)
         #self.urlbar.returnPressed()
         # self.navigate_to_url()
-        print('set '+url)
+        # print('set '+url)
     # def keyPressEvent(self, a0):
     #     # self.browser.setUrl(QUrl('https://www.baidu.com/s?wd=你好'))
     #     print('entering---------')
@@ -139,7 +141,7 @@ class MainWindow(QMainWindow):
             data = e.get_data()
             # self.change_url()
             self.change_url(str(data))
-            print('custom event:'+data)
+            # print('custom event:'+data)
 
 # # 创建应用
 # app = QApplication(sys.argv)

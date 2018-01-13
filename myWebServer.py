@@ -37,10 +37,10 @@ class myServer:
         while 1:
             # wait to accept a connection - blocking call
             conn, addr = self.s.accept()
-            print(addr[0])
-            print(addr[1])
+            # print(addr[0])
+            # print(addr[1])
             bData = conn.recv(1024)
-            print(bData)
+            # print(bData)
             msg = str(bData, "utf-8")
             print(msg)
             self.showHtml.setUrl(msg)

@@ -1,3 +1,4 @@
+# coding=utf-8
 import cv2
 from PIL import Image
 import numpy as np
@@ -286,8 +287,8 @@ if __name__ == '__main__':
         'x2': 120 / 720,
         'y1': 170 / 1280,
         'y2': -50 / 1280,
-        'logo': '冲顶logo_android.jpg',
-        'answer': '冲顶answer_android.jpg',
+        'logo': 'cd_logo_android.jpg',
+        'answer': 'cd_answer_android.jpg',
         'width': 720,
         'height': 1280,
         'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
