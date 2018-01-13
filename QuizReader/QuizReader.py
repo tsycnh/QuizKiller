@@ -36,7 +36,9 @@ class QuizReader:
         print('after shape',self.origin_img.shape)
         self.origin_img_gray = cv2.cvtColor(self.origin_img,code=cv2.COLOR_BGR2GRAY)
         self.line_height = (40/1334)*self.origin_img_gray.shape[0] #行间距
+        print('计算question坐标')
         q_coord = self.calc_question_coord()
+        print('获取语句')
         question = self.get_sentence_from_ROI(q_coord)
         # answer3 = self.get_sentence_from_ROI(self.answer3_ratio)
         # answer2 = self.get_sentence_from_ROI(self.answer2_ratio)
@@ -79,10 +81,13 @@ class QuizReader:
         # cv2.waitKey()
         return question_pos
     def get_sentence_from_ROI(self,coord):
+        print('ROI切割')
         self.crop_ROI(coord)
         # cv2.imwrite('crop2.jpg',self.crop_img)
         # exit()
+        print('bbox提取')
         self.extract_bbox()
+        print('rects排序')
         if len(self.all_rects)<=0:
             return ''
         elif len(self.all_rects)>1:
@@ -90,9 +95,12 @@ class QuizReader:
             # img = draw_rects(self.crop_img,self.all_rects)
             # cv2.imshow('aaa',img)
             # cv2.waitKey()
+        print('文字图片生成')
         self.get_single_words()
         if len(self.all_words)<=0:
+            print('--无文字--')
             return ''
+        print('导出句子')
         return self.export_sentence()
 
     def export_sentence(self):
@@ -274,7 +282,7 @@ class QuizReader:
 
 if __name__ == '__main__':
     android_setting = {
-        'x1': -500 / 720,#用来设置question的位置
+        'x1': -500 / 720,#用来设置question的位置，前三个相对logo位置，y2相对answer位置
         'x2': 120 / 720,
         'y1': 170 / 1280,
         'y2': -50 / 1280,
