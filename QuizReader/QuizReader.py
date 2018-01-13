@@ -1,7 +1,7 @@
 import cv2
 from PIL import Image
 import numpy as np
-from QuizReader.utils import *
+from utils import *
 import keras
 import time
 # 动态适应不同的输入图像大小
@@ -11,11 +11,6 @@ class QuizReader:
     def __init__(self,setting,model_path,source_path):
         self.setting = setting
         self.load_model(model_path,source_path)
-        # 当前设置适合冲顶大会
-        # self.question_ratio={'x':0.0667,'y':0.2249,'w':0.8667,'h':0.1124}
-        # self.answer1_ratio ={'x':0.12,'y':0.41,'w':0.7,'h':0.05}
-        # self.answer2_ratio ={'x':0.12,'y':0.495,'w':0.7,'h':0.05}
-        # self.answer3_ratio ={'x':0.12,'y':0.575,'w':0.7,'h':0.05}
 
     def load_model(self,model_path,source_path):
         keras.backend.clear_session()
@@ -36,20 +31,23 @@ class QuizReader:
         print('after shape',self.origin_img.shape)
         self.origin_img_gray = cv2.cvtColor(self.origin_img,code=cv2.COLOR_BGR2GRAY)
         self.line_height = (40/1334)*self.origin_img_gray.shape[0] #行间距
-        print('计算question坐标')
-        q_coord = self.calc_question_coord()
+        print('计算坐标')
+        q_coord = self.calc_question_coord(ratio = self.setting['quiz']['question'])
+        a1_coord = self.calc_coord(ratio = self.setting['quiz']['answer1'])
+        a2_coord = self.calc_coord(ratio = self.setting['quiz']['answer2'])
+        a3_coord = self.calc_coord(ratio = self.setting['quiz']['answer3'])
         print('获取语句')
         question = self.get_sentence_from_ROI(q_coord)
-        # answer3 = self.get_sentence_from_ROI(self.answer3_ratio)
-        # answer2 = self.get_sentence_from_ROI(self.answer2_ratio)
-        # answer1 = self.get_sentence_from_ROI(self.answer1_ratio)
+        answer1 = self.get_sentence_from_ROI(a1_coord)
+        answer2 = self.get_sentence_from_ROI(a2_coord)
+        answer3 = self.get_sentence_from_ROI(a3_coord)
 
-        return [question,'','','']
+        return question,answer1,answer2,answer3
 
-    def calc_question_coord(self):
+    def calc_question_coord(self,ratio):
         logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
         answer = cv2.imread(self.setting['answer'])
-        img = self.origin_img
+        img = self.origin_img.copy()
 
         logo_h, logo_w, _ = logo.shape
         answer_h, answer_w, _ = answer.shape
@@ -62,10 +60,10 @@ class QuizReader:
         x_logo = logo_pos[0]
         y_logo = logo_pos[1]
         y_a = answer_pos[1]
-        x1 = int(x_logo + img_w * (self.setting['x1']))
-        x2 = int(x_logo + img_w * (self.setting['x2']))
-        y1 = int(y_logo + img_h * (self.setting['y1']))
-        y2 = int(y_a + img_h * (self.setting['y2']))
+        x1 = int(x_logo + img_w * (ratio['x1']))
+        x2 = int(x_logo + img_w * (ratio['x2']))
+        y1 = int(y_logo + img_h * (ratio['y1']))
+        y2 = int(y_a + img_h * (ratio['y2']))
 
         question_pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
 
@@ -80,10 +78,39 @@ class QuizReader:
         # # cv2.imwrite('mask.jpg',img)
         # cv2.waitKey()
         return question_pos
+    def calc_coord(self,ratio):
+        answer = cv2.imread(self.setting['answer'])
+        img = self.origin_img.copy()
+        answer_h, answer_w, _ = answer.shape
+        img_h, img_w, _ = img.shape
+        r2 = cv2.matchTemplate(img, answer, method=cv2.TM_SQDIFF)
+        answer_pos = cv2.minMaxLoc(r2)[2]  # (540,70)=>(x,y)
+        # print(img_w,img_h)# 720 1280
+        x_a = answer_pos[0]
+        y_a = answer_pos[1]
+
+        x1 = int(x_a + img_w * (ratio['x1']))
+        x2 = int(x_a + img_w * (ratio['x2']))
+        y1 = int(y_a + img_h * (ratio['y1']))
+        y2 = int(y_a + img_h * (ratio['y2']))
+
+        pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
+
+        # print(anser_pos)
+        # img[answer_pos[1]:answer_pos[1] + answer_h, answer_pos[0]:answer_pos[0] + answer_w] = np.zeros(answer.shape, dtype=np.uint8)## img[top: bottom, left: right]
+        #crop = img[y1:y2,x1:x2].copy()
+        #img[y1:y2,x1:x2] = np.zeros((y2-y1,x2-x1,3),dtype=np.uint8)
+        # cv2.imshow('img',img)
+        # cv2.imshow('crop',crop)
+        # # cv2.imwrite('mask.jpg',img)
+        # cv2.waitKey()
+        return pos
+
     def get_sentence_from_ROI(self,coord):
         print('ROI切割')
         self.crop_ROI(coord)
-        # cv2.imwrite('crop2.jpg',self.crop_img)
+        # cv2.imshow('crop',self.crop_img)
+        # cv2.waitKey()
         # exit()
         print('bbox提取')
         self.extract_bbox()
@@ -93,7 +120,7 @@ class QuizReader:
         elif len(self.all_rects)>1:
             self.sort_rects()
             # img = draw_rects(self.crop_img,self.all_rects)
-            # cv2.imshow('aaa',img)
+            # cv2.imshow('画rects',img)
             # cv2.waitKey()
         print('文字图片生成')
         self.get_single_words()
@@ -127,7 +154,7 @@ class QuizReader:
     # 切割区域
     def crop_ROI(self,coord):
         x1,y1,x2,y2 = coord[0],coord[1],coord[2],coord[3]
-        self.crop_img = self.origin_img_gray[y1:y2,x1:x2]  # img[top: bottom, left: right]
+        self.crop_img = self.origin_img_gray[y1:y2,x1:x2].copy()  # img[top: bottom, left: right]
     # 获取每个文字的bbox
     def merge_line_y_rects(self,line_rects):
         while True:
@@ -155,7 +182,7 @@ class QuizReader:
         height, width = self.crop_img.shape
 
         kernel = np.ones((3, 3), np.uint8)
-        erosion = cv2.erode(self.crop_img, kernel, iterations=1)
+        erosion = cv2.erode(self.crop_img.copy(), kernel, iterations=1)
         dilation = cv2.dilate(erosion, kernel, iterations=1)
         th = cv2.threshold(dilation, thresh=200, maxval=255, type=cv2.THRESH_BINARY_INV)
         _, contours0, hierarchy = cv2.findContours(th[1], mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
@@ -281,11 +308,20 @@ class QuizReader:
             # i+=1
 
 if __name__ == '__main__':
+    cd_coord ={
+        'question':{
+            'x1': -500 / 720,  # 用来设置question的位置，前三个相对logo位置，y2相对answer位置
+            'x2': 120 / 720,
+            'y1': 170 / 1280,
+            'y2': -50 / 1280,
+        },
+        'answer1':{'x1': 0.052, 'x2': 0.809, 'y1': 0.016, 'y2': 0.063},
+        'answer2':{'x1': 0.054, 'x2': 0.808, 'y1': 0.101, 'y2': 0.146},
+        'answer3':{'x1': 0.051, 'x2': 0.797, 'y1': 0.185, 'y2': 0.23}
+
+    }
     android_setting = {
-        'x1': -500 / 720,#用来设置question的位置，前三个相对logo位置，y2相对answer位置
-        'x2': 120 / 720,
-        'y1': 170 / 1280,
-        'y2': -50 / 1280,
+        'quiz':cd_coord,
         'logo': '冲顶logo_android.jpg',
         'answer': '冲顶answer_android.jpg',
         'width': 720,
@@ -293,12 +329,14 @@ if __name__ == '__main__':
         'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
-    qr = QuizReader(android_setting,'Source/chnData_resnet.h5','Source/source.txt')
+    qr = QuizReader(android_setting,'chnData_resnet.h5','source.txt')
     t0 = time.time()
-    image = Image.open('test_images/冲顶1.jpg')
+    image = Image.open('test_images/冲顶0.jpg')
 
     s = qr.run(image)
     t1 = time.time()
+    cv2.imshow('crop',qr.crop_img)
     print('s:',s)
     print('图像识别耗时：',t1-t0)
+    cv2.waitKey()
     exit()
