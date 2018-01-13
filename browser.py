@@ -6,8 +6,11 @@
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-from PyQt5.QtWebKitWidgets import *
-# from PyQt5.QtWebEngineWidgets import *
+try:
+    from PyQt5.QtWebKitWidgets import *
+except:
+    from PyQt5.QtWebEngineWidgets import *
+
 from PyQt5.QtGui import QKeyEvent
 
 import sys
@@ -26,8 +29,10 @@ class MainWindow(QMainWindow):
         self.show()
 
         # 设置浏览器
-        # self.browser = QWebEngineView()
-        self.browser = QWebView()
+        try:
+            self.browser = QWebEngineView()
+        except:
+            self.browser = QWebView()
         url = u'http://www.baidu.com/s?wd=中国'
         # 指定打开界面的 URL
         self.browser.setUrl(QUrl(url))
@@ -84,14 +89,6 @@ class MainWindow(QMainWindow):
         self.urlbar.setText(q.toString())
         self.urlbar.setCursorPosition(0)
     def change_url(self,url):
-        # self.setWindowFlags(state=[Qt.FramelessWindowHint|Qt.WindowStaysOnTopHint])
-
-        # self.show()
-        # self.activateWindow()
-        # self.raise_()
-        # if self.browser.loadFinished()==False:
-
-
         q=QUrl(url)
         if q.scheme() == '':
             q.setScheme('http')
@@ -100,42 +97,7 @@ class MainWindow(QMainWindow):
             self.browser.setUrl(q)
         except:
             print("brower..error")
-        # self.browser.setUrl(q)
-        # self.renew_urlbar(q)
-        # self.url =url
-        # self.navigate_to_url()
-        # if self.renew_f == False:
-        #     self.renew_f = True
-        # self.navigate_to_url()
-        # self.browser.load(q)
-        # self.browser.show()
 
-         # self.browser = QWebView()
-        # url = u'http://www.baidu.com/s?wd=中国'
-        # 指定打开界面的 URL
-        # self.browser.setUrl(QUrl(url))
-        # 添加浏览器到窗口中
-        # self.setCentralWidget(self.browser)
-        # self.browser.keyPressEvent()
-        # self.browser.reload()
-        # qe = QKeyEvent(type = )
-        # self.urlbar.keyPressEvent(a0=qe)
-        #self.browser.setHtml('aa',baseUrl=q)
-        #evt = QKeyEvent(key=32,type=QEvent.Type)
-        #self.urlbar.returnPressed()
-        # self.navigate_to_url()
-        # print('set '+url)
-    # def keyPressEvent(self, a0):
-    #     # self.browser.setUrl(QUrl('https://www.baidu.com/s?wd=你好'))
-    #     print('entering---------')
-    # def enterEvent(self, a0):
-    #     q = QUrl(self.url)
-    #     if self.renew_f == True:
-    #         if self.url != '':
-    #             if q.scheme() == '':
-    #                 q.setScheme('http')
-    #             self.browser.setUrl(q)
-    #         self.renew_f = False
     def customEvent(self, e):
         if e.type() == myEvent.MyEvent.idType:
             data = e.get_data()

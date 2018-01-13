@@ -15,17 +15,26 @@ import os
 # mShowHtml = showHtml.ShowHtml()
 
 class Setting:
+    cd_coord ={
+        'question':{
+            'x1': -500 / 720,  # 用来设置question的位置，前三个相对logo位置，y2相对answer位置
+            'x2': 120 / 720,
+            'y1': 170 / 1280,
+            'y2': -50 / 1280,
+        },
+        'answer1':{'x1': 0.052, 'x2': 0.809, 'y1': 0.016, 'y2': 0.063},
+        'answer2':{'x1': 0.054, 'x2': 0.808, 'y1': 0.101, 'y2': 0.146},
+        'answer3':{'x1': 0.051, 'x2': 0.797, 'y1': 0.185, 'y2': 0.23}
+
+    }
     android_setting = {
-        'x1': -500 / 720,#用来设置question的位置
-        'x2': 120 / 720,
-        'y1': 170 / 1280,
-        'y2': -50 / 1280,
-        'logo': 'E:/git/Quizkiller/QuizReader/cd_logo_android.jpg',
-        'answer': 'E:/git/Quizkiller/QuizReader/cd_answer_android.jpg',
+        'quiz':cd_coord,
+        'logo': './QuizReader/cd_logo_android.jpg',
+        'answer': './QuizReader/cd_answer_android.jpg',
         'width': 720,
         'height': 1280,
-        'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
-        'confidence_threshold':0.5,#高于此置信度的文字才会被输出
+        'reduce_threshold':20/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
 
 
@@ -40,45 +49,21 @@ class QuizKiller():
         print("info:load over")
     def getScreenImage(self):
 
-        #冲顶大会
         box = (self.sWidth-720,65,self.sWidth,self.sHeight-95)
-
         im = ImageGrab.grab()
-        # im.save(addr)
-        #box = (100, 100, 500, 500)
         region = im.crop(box)
-        # region.show()
         self.pic_index = self.pic_index+1
-        # region.save('aa.jpg')
         return region
 
     def runOCR(self,sImage):
         #sImage.show()
 
         t0 = time.time()
-        # image = Image.open('2.PNG')
-        # try:
-        #     s = self.qr.run(sImage)
-        # except:
-        #     print('error:OCR算法出错')
-        #     return list()
         s = self.qr.run(sImage)
-        # cv2.imshow('c',self.qr.crop_img)
-        # cv2.waitKey()
         t1 = time.time()
         print('s:', s)
         print('图像识别耗时：', t1 - t0)
-        # text = '请问海贼王是谁写的'
-        # text1 = '村上春树'
-        # text2 = '尾田荣一郎'
-        # text3 = '岸本齐史'
-        # texts = list()
-        # texts.append(text)
-        # texts.append(text1)
-        # texts.append(text2)
-        # texts.append(text3)
-        #
-        # print('running OCR')
+
         self.textlist = s
         return s
 
@@ -152,9 +137,21 @@ class appQuizKiller(QWidget):
 
     def initUI(self):
 
-        self.setGeometry(300, 300, 290, 150)
+        self.setGeometry(300, 300, 500, 500)
         self.setWindowTitle("QuizKiller")
         self.show()
+
+    def savePic(self):
+        dstROI = self.killer.getScreenImage()
+        curPath = os.getcwd()
+        if False == os.path.exists(curPath + '/savedPic'):
+            os.mkdir('savedPic')
+        filename = 'savedPic/' + str(self.killer.pic_index) + '.jpg'
+        print('info:saving pic')
+        try:
+            dstROI.save(filename, quality=100)
+        except:
+            print("error:保存pic出错")
 
     def customEvent(self, e):
         if e.type() == myEvent.MyEvent.idType:
@@ -183,16 +180,7 @@ class appQuizKiller(QWidget):
         except:
             print('warning：没有待搜索内容')
         if e.key() == Qt.Key_S:
-            dstROI = self.killer.getScreenImage()
-            curPath = os.getcwd()
-            if False == os.path.exists(curPath+'/savedPic'):
-                os.mkdir('savedPic')
-            filename ='savedPic/'+ str(self.killer.pic_index)+'.jpg'
-            print('info:saving pic')
-            try:
-                dstROI.save(filename,quality = 100)
-            except:
-                print("error:保存pic出错")
+            self.savePic()
 
 def main():
     app = QApplication(sys.argv)

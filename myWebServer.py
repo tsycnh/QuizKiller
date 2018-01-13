@@ -5,19 +5,6 @@ import showHtml
 
 
 
-# class mySocketThread (threading.Thread):   #继承父类threading.Thread
-#     def __init__(self, threadID, name, counter):
-#         threading.Thread.__init__(self)
-#         self.threadID = threadID
-#         self.name = name
-#         self.counter = counter
-#
-#
-#     def run(self):
-#         server = myServer()
-#         server.recMsg()
-#     # def run_web_view(self):
-
 class myServer:
     HOST = '127.0.0.1'  # Symbolic name meaning all available interfaces
     # PORT = 9000  # Arbitrary non-privileged port
@@ -37,8 +24,6 @@ class myServer:
         while 1:
             # wait to accept a connection - blocking call
             conn, addr = self.s.accept()
-            # print(addr[0])
-            # print(addr[1])
             bData = conn.recv(1024)
             # print(bData)
             msg = str(bData, "utf-8")
