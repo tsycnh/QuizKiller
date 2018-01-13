@@ -1,7 +1,7 @@
 import screen_grab
 from pynput import keyboard
 from PIL import ImageGrab
-import QuizReader
+from QuizReader import QuizReader
 import time
 from myClient import *
 from win32api import GetSystemMetrics
@@ -13,12 +13,27 @@ import os
 
 # mShowHtml = showHtml.ShowHtml()
 
+class Setting:
+    android_setting = {
+        'x1': -500 / 720,#用来设置question的位置
+        'x2': 120 / 720,
+        'y1': 170 / 1280,
+        'y2': -50 / 1280,
+        'logo': 'QuizReader/冲顶logo_android.jpg',
+        'answer': 'QuizReader/冲顶answer_android.jpg',
+        'width': 720,
+        'height': 1280,
+        'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'confidence_threshold':0.7,#高于此置信度的文字才会被输出
+    }
+
+
 class QuizKiller():
     def __init__(self):
         # self.box = (100, 200)  #width height
         self.sWidth = GetSystemMetrics(0)
         self.sHeight = GetSystemMetrics(1)
-        self.qr = QuizReader.QuizReader()
+        self.qr = QuizReader.QuizReader(Setting.android_setting,'Source/chnData_resnet_20180113.h5','Source/source.txt')
         self.pic_index =0
         print("info:load over")
     def getScreenImage(self):
@@ -40,11 +55,12 @@ class QuizKiller():
 
         t0 = time.time()
         # image = Image.open('2.PNG')
-        try:
-            s = self.qr.run(sImage)
-        except:
-            print('error:OCR算法出错')
-            return list()
+        # try:
+        #     s = self.qr.run(sImage)
+        # except:
+        #     print('error:OCR算法出错')
+        #     return list()
+        s = self.qr.run(sImage)
         t1 = time.time()
         print('s:', s)
         print('图像识别耗时：', t1 - t0)
@@ -88,7 +104,9 @@ class QuizKiller():
 
 
     def runQuizKiller(self,char):
+        print('into get image'+char)
         dstROI = self.getScreenImage()
+        print('get image over')
         # dstROI.show()
         texts = self.runOCR(dstROI)
         print(texts)
@@ -123,6 +141,7 @@ class mrun():
 class appQuizKiller(QWidget):
     def __init__(self):
         super().__init__()
+        setting = Setting()
         self.killer = QuizKiller()
         self.initUI()
         print('load model over')
@@ -139,15 +158,17 @@ class appQuizKiller(QWidget):
 
     def keyPressEvent(self, e):
         print('info:press '+str(e.key()))
-        try:
-            if e.key() == Qt.Key_1:
-                self.killer.runQuizKiller('1')
-            if e.key() == Qt.Key_2:
-                self.killer.runQuizKiller('2')
-            if e.key() == Qt.Key_3:
-                self.killer.runQuizKiller('3')
-        except:
-            print('error：有一些错误')
+        # try:
+        #     if e.key() == Qt.Key_1:
+        #         self.killer.runQuizKiller('1')
+        #     if e.key() == Qt.Key_2:
+        #         self.killer.runQuizKiller('2')
+        #     if e.key() == Qt.Key_3:
+        #         self.killer.runQuizKiller('3')
+        # except:
+        #     print('error：有一些错误')
+        if e.key() == Qt.Key_1:
+            self.killer.runQuizKiller('1')
         try:
             if e.key() == Qt.Key_4:
                 self.killer.quizSearch(self.killer.textlist, '1')

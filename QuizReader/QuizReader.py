@@ -1,7 +1,7 @@
 import cv2
 from PIL import Image
 import numpy as np
-from utils import *
+from QuizReader.utils import *
 import keras
 import time
 # 动态适应不同的输入图像大小
@@ -285,7 +285,7 @@ if __name__ == '__main__':
         'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
-    qr = QuizReader(android_setting,'chnData_resnet.h5','source.txt')
+    qr = QuizReader(android_setting,'Source/chnData_resnet.h5','Source/source.txt')
     t0 = time.time()
     image = Image.open('test_images/冲顶1.jpg')
 
