@@ -1,5 +1,5 @@
 import cv2
-# 判断两矩形是否相交，若相交返回相交面积，否则返回-1
+# 判断两矩形是否相交，若相交返回相交面积，否则返回-1,gap表示两个矩形之间如果有gap大小的距离也算相交
 def rect_interaction(rect1,rect2,gap = 0):
     #rect1 = [x1,y1,x2,y2]  x1,y1 左上角矩形坐标 x2,y2 右下角矩形坐标
     x1,y1,x2,y2 = rect1[0]-gap,rect1[1]-gap,rect1[2]+gap,rect1[3]+gap

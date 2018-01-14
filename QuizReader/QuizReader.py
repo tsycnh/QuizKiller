@@ -52,27 +52,48 @@ class QuizReader:
         return question,answer1,answer2,answer3
 
     def calc_question_coord(self,ratio):
-        logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
-        answer = cv2.imread(self.setting['answer'])
-        img = self.origin_img.copy()
+        if self.setting['quiz']['name'] == '冲顶大会':
+            logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
+            answer = cv2.imread(self.setting['answer'])
+            img = self.origin_img.copy()
 
-        logo_h, logo_w, _ = logo.shape
-        answer_h, answer_w, _ = answer.shape
-        img_h, img_w, _ = img.shape
-        r = cv2.matchTemplate(img, logo, method=cv2.TM_SQDIFF)
-        r2 = cv2.matchTemplate(img, answer, method=cv2.TM_SQDIFF)
-        logo_pos = cv2.minMaxLoc(r)[2]
-        answer_pos = cv2.minMaxLoc(r2)[2]  # (540,70)=>(x,y)
-        # print(img_w,img_h)# 720 1280
-        x_logo = logo_pos[0]
-        y_logo = logo_pos[1]
-        y_a = answer_pos[1]
-        x1 = int(x_logo + img_w * (ratio['x1']))
-        x2 = int(x_logo + img_w * (ratio['x2']))
-        y1 = int(y_logo + img_h * (ratio['y1']))
-        y2 = int(y_a + img_h * (ratio['y2']))
+            logo_h, logo_w, _ = logo.shape
+            answer_h, answer_w, _ = answer.shape
+            img_h, img_w, _ = img.shape
+            r = cv2.matchTemplate(img, logo, method=cv2.TM_SQDIFF)
+            r2 = cv2.matchTemplate(img, answer, method=cv2.TM_SQDIFF)
+            logo_pos = cv2.minMaxLoc(r)[2]
+            answer_pos = cv2.minMaxLoc(r2)[2]  # (540,70)=>(x,y)
+            # print(img_w,img_h)# 720 1280
+            x_logo = logo_pos[0]
+            y_logo = logo_pos[1]
+            y_a = answer_pos[1]
+            x1 = int(x_logo + img_w * (ratio['x1']))
+            x2 = int(x_logo + img_w * (ratio['x2']))
+            y1 = int(y_logo + img_h * (ratio['y1']))
+            y2 = int(y_a + img_h * (ratio['y2']))
 
-        question_pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
+            question_pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
+            return question_pos
+        elif self.setting['quiz']['name'] == '百万英雄':
+            logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
+            img = self.origin_img.copy()
+
+            logo_h, logo_w, _ = logo.shape
+            img_h, img_w, _ = img.shape
+            r = cv2.matchTemplate(img, logo, method=cv2.TM_SQDIFF)
+            logo_pos = cv2.minMaxLoc(r)[2]
+            # print(img_w,img_h)# 720 1280
+            x_logo = logo_pos[0]
+            y_logo = logo_pos[1]
+            x1 = int(x_logo + img_w * (ratio['x1']))
+            x2 = int(x_logo + img_w * (ratio['x2']))
+            y1 = int(y_logo + img_h * (ratio['y1']))
+            y2 = int(y_logo + img_h * (ratio['y2']))
+
+            question_pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
+            return question_pos
+
 
         # # print(anser_pos)
         # img[logo_pos[1]:logo_pos[1]+logo_h,logo_pos[0]:logo_pos[0]+logo_w] = np.zeros(logo.shape,dtype=np.uint8)## img[top: bottom, left: right]
@@ -84,34 +105,37 @@ class QuizReader:
         # cv2.imshow('crop',crop)
         # # cv2.imwrite('mask.jpg',img)
         # cv2.waitKey()
-        return question_pos
     def calc_coord(self,ratio):
-        answer = cv2.imread(self.setting['answer'])
-        img = self.origin_img.copy()
-        answer_h, answer_w, _ = answer.shape
-        img_h, img_w, _ = img.shape
-        r2 = cv2.matchTemplate(img, answer, method=cv2.TM_SQDIFF)
-        answer_pos = cv2.minMaxLoc(r2)[2]  # (540,70)=>(x,y)
-        # print(img_w,img_h)# 720 1280
-        x_a = answer_pos[0]
-        y_a = answer_pos[1]
+        if self.setting['quiz']['name'] == '冲顶大会':
+            answer = cv2.imread(self.setting['answer'])
+            img = self.origin_img.copy()
+            answer_h, answer_w, _ = answer.shape
+            img_h, img_w, _ = img.shape
+            r2 = cv2.matchTemplate(img, answer, method=cv2.TM_SQDIFF)
+            answer_pos = cv2.minMaxLoc(r2)[2]  # (540,70)=>(x,y)
+            # print(img_w,img_h)# 720 1280
+            x_a = answer_pos[0]
+            y_a = answer_pos[1]
 
-        x1 = int(x_a + img_w * (ratio['x1']))
-        x2 = int(x_a + img_w * (ratio['x2']))
-        y1 = int(y_a + img_h * (ratio['y1']))
-        y2 = int(y_a + img_h * (ratio['y2']))
+            x1 = int(x_a + img_w * (ratio['x1']))
+            x2 = int(x_a + img_w * (ratio['x2']))
+            y1 = int(y_a + img_h * (ratio['y1']))
+            y2 = int(y_a + img_h * (ratio['y2']))
 
-        pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
+            pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
 
-        # print(anser_pos)
-        # img[answer_pos[1]:answer_pos[1] + answer_h, answer_pos[0]:answer_pos[0] + answer_w] = np.zeros(answer.shape, dtype=np.uint8)## img[top: bottom, left: right]
-        #crop = img[y1:y2,x1:x2].copy()
-        #img[y1:y2,x1:x2] = np.zeros((y2-y1,x2-x1,3),dtype=np.uint8)
-        # cv2.imshow('img',img)
-        # cv2.imshow('crop',crop)
-        # # cv2.imwrite('mask.jpg',img)
-        # cv2.waitKey()
-        return pos
+            # print(anser_pos)
+            # img[answer_pos[1]:answer_pos[1] + answer_h, answer_pos[0]:answer_pos[0] + answer_w] = np.zeros(answer.shape, dtype=np.uint8)## img[top: bottom, left: right]
+            #crop = img[y1:y2,x1:x2].copy()
+            #img[y1:y2,x1:x2] = np.zeros((y2-y1,x2-x1,3),dtype=np.uint8)
+            # cv2.imshow('img',img)
+            # cv2.imshow('crop',crop)
+            # # cv2.imwrite('mask.jpg',img)
+            # cv2.waitKey()
+            return pos
+        elif self.setting['quiz']['name']=='百万英雄':
+            pos = self.calc_question_coord(ratio)
+            return pos
 
     def get_sentence_from_ROI(self,coord):
         print('ROI切割')
@@ -350,9 +374,24 @@ if __name__ == '__main__':
         'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
-    qr = QuizReader(android_setting,'chnData_resnet.h5','source.txt')
+    apple_bw_setting = {
+        'quiz':{
+            'name':'百万英雄',
+            'question':{'x1': -0.71, 'x2': 0.14, 'y1': 0.163, 'y2': 0.332},
+            'answer1':{'x1': -0.651, 'x2': 0.056, 'y1': 0.376, 'y2': 0.43},
+            'answer2':{'x1': -0.641, 'x2': 0.061, 'y1': 0.476, 'y2': 0.526},
+            'answer3':{'x1': -0.658, 'x2': 0.075, 'y1': 0.576, 'y2': 0.626}
+        },
+        'logo': 'bw_logo_apple.png',
+        'answer':'',
+        'width': 750,
+        'height': 1334,
+        'reduce_threshold':50/750,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'confidence_threshold':0.7,#高于此置信度的文字才会被输出
+    }
+    qr = QuizReader(apple_bw_setting,'chnData_resnet.h5','source.txt')
     t0 = time.time()
-    image = Image.open('test_images/冲顶3.jpg')
+    image = Image.open('test_images/苹果/百万英雄/1.png')
 
     s = qr.run(image)
     t1 = time.time()
