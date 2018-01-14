@@ -16,7 +16,8 @@ class QuizReader:
     def __init__(self,setting,model_path,source_path):
         self.setting = setting
         self.debug = False
-        self.load_model(model_path,source_path)
+        if not self.debug:
+            self.load_model(model_path,source_path)
 
     def load_model(self,model_path,source_path):
         keras.backend.clear_session()
@@ -159,6 +160,8 @@ class QuizReader:
             # print('置信度：',confidence)
             if confidence >= self.setting['confidence_threshold']:
                 sentence+=self.word_dict[index]
+            else:
+                sentence+='*'
         return sentence
         # print(classes)
     # 切割区域
@@ -187,6 +190,8 @@ class QuizReader:
         print('centers:',centers)
         print('gradients:',g)
         return line_rects
+
+
     # 获取每个文字的bbox
     def extract_bbox(self):
         height, width = self.crop_img.shape
@@ -212,26 +217,8 @@ class QuizReader:
             all_rects.append(rect)
 
         # vis2 = draw_rects(vis2, all_rects)
+        utils.merge_group_rects(all_rects,gap=1)
 
-        while True:
-            found_interaction = False
-            for i in range(len(all_rects) - 1):
-                for j in range(i + 1, len(all_rects)):
-                    r1 = all_rects[i]
-                    r2 = all_rects[j]
-                    if utils.rect_interaction(r1, r2) > 0:  # 若相交
-                        # print('发现相交')
-                        new_r = utils.merge_rects(r1, r2)
-                        del all_rects[j]
-                        del all_rects[i]
-                        all_rects.append(new_r)
-                        found_interaction = True
-                        break
-            # print('====')
-            if not found_interaction:
-                break
-
-        # vis3 = draw_rects(vis3, all_rects)
 
         self.all_rects = utils.reduce_rects(all_rects, thresh_area=self.setting['reduce_threshold']*self.setting['width'])
         # vis4 = draw_rects(vis4,all_rects)
@@ -261,9 +248,14 @@ class QuizReader:
             gradients.append(g)
         return gradients
 
-    # # 规范rect高度
-    # def regulate_rect_heights(self):
-
+    # 规范同一行文字rect高度
+    # 这里会直接对single_line_rects做修改
+    def regulate_rect_heights(self,single_line_rects):
+        y_top = min(single_line_rects,key=lambda x:x[1])[1]
+        y_bottom = max(single_line_rects,key=lambda x:x[3])[3]
+        for rect in single_line_rects:
+            rect[1] = y_top
+            rect[3] = y_bottom
 
     # 将所有文字框排成一行
     def sort_rects(self):
@@ -275,7 +267,6 @@ class QuizReader:
             y_value.append(self.all_rects[i][1])
             y_gradients.append(g)
         # print(self.all_rects)
-
 
         if self.debug:
             img = utils.draw_rects(self.crop_img,self.all_rects)
@@ -298,19 +289,8 @@ class QuizReader:
             all_lines.append(other_rects)
         else:
             all_lines = [self.all_rects]
-        # last_max_y_index = 0
-        # all_lines = []
-        # if max_y > self.line_height:
-        #     while max_y >self.line_height:# 多行的情况
-        #         line1 = self.all_rects[last_max_y_index:max_y_index+1]
-        #         all_lines.append(line1)
-        #         last_max_y_index = max_y_index
-        #         max_y = max(y_gradients[max_y_index+1:])
-        #     all_lines.append(self.all_rects[last_max_y_index+1:])
-        # else:
-        #     all_lines = [self.all_rects]
-        #
-
+        for l in all_lines:
+            self.regulate_rect_heights(l)
 
         single_lines =[]
         for single_line in all_lines:
@@ -319,23 +299,6 @@ class QuizReader:
             single_lines.extend(line)
 
         self.all_rects = single_lines
-        # if max_y > self.line_height:# 分行
-        #     max_y_index = y_gradients.index(max_y)
-        #     line1 = self.all_rects[0:max_y_index+1]
-        #     line2 = self.all_rects[max_y_index+1:]
-        #     line1 = self.merge_line_y_rects(line1)
-        #     line2 = self.merge_line_y_rects(line2)
-        #
-        #     #merge
-        #     line1 = self.sort_by_x(line1)
-        #     line2 = self.sort_by_x(line2)
-        #     line1.extend(line2)
-        #     self.all_rects =line1
-        # else:
-        #     line = self.all_rects
-        #     line = self.merge_line_y_rects(line)
-        #     tmp = self.sort_by_x(line)
-        #     self.all_rects =tmp
 
     # 获取单行文字
     def get_single_words(self,word_size=32):
