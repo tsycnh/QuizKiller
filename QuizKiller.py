@@ -29,11 +29,26 @@ class Setting:
     }
     android_setting = {
         'quiz':cd_coord,
-        'logo': './QuizReader/cd_logo_android.jpg',
-        'answer': './QuizReader/cd_answer_android.jpg',
+        'logo': 'QuizReader/cd_logo_android.jpg',
+        'answer': 'QuizReader/cd_answer_android.jpg',
         'width': 720,
         'height': 1280,
-        'reduce_threshold':20/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'confidence_threshold':0.7,#高于此置信度的文字才会被输出
+    }
+    apple_bw_setting = {
+        'quiz':{
+            'name':'百万英雄',
+            'question':{'x1': -0.71, 'x2': 0.14, 'y1': 0.163, 'y2': 0.332},
+            'answer1':{'x1': -0.651, 'x2': 0.056, 'y1': 0.376, 'y2': 0.43},
+            'answer2':{'x1': -0.641, 'x2': 0.061, 'y1': 0.476, 'y2': 0.526},
+            'answer3':{'x1': -0.658, 'x2': 0.075, 'y1': 0.576, 'y2': 0.626}
+        },
+        'logo': 'bw_logo_apple.png',
+        'answer':'',
+        'width': 750,
+        'height': 1334,
+        'reduce_threshold':50/750,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
 
@@ -43,7 +58,7 @@ class QuizKiller():
         # self.box = (100, 200)  #width height
         self.sWidth = GetSystemMetrics(0)
         self.sHeight = GetSystemMetrics(1)
-        self.qr = QuizReader.QuizReader(Setting.android_setting,'Source/chnData_resnet_20180113_2.h5','Source/source.txt')
+        self.qr = QuizReader.QuizReader(Setting.android_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
         self.pic_index =0
 
         print("info:load over")
@@ -130,16 +145,56 @@ class mrun():
 class appQuizKiller(QWidget):
     def __init__(self):
         super().__init__()
-        setting = Setting()
+        self.phoneSystem = '安卓系统'
+        self.quizAppName = '冲顶大会'
+        self.setting = Setting()
         self.killer = QuizKiller()
         self.initUI()
         print('load model over')
-
+        self.show()
     def initUI(self):
 
         self.setGeometry(300, 300, 500, 500)
         self.setWindowTitle("QuizKiller")
-        self.show()
+        # self.show()
+
+        btn = QPushButton('应用',self)
+        btn.resize(btn.sizeHint())
+        btn.move(100,210)
+        btn.clicked.connect(self.applySetting)
+
+        combo1 = QComboBox(self)
+        combo1.addItem("安卓系统")
+        combo1.addItem("苹果系统")
+        combo1.setCurrentIndex(0)
+        combo1.move(100,90)
+        combo1.activated[str].connect(self.onActivated1)
+
+        combo2 = QComboBox(self)
+        combo2.addItem("冲顶大会")
+        combo2.addItem("百万英雄")
+        combo2.addItem("芝士超人")
+        combo2.setCurrentIndex(0)
+        combo2.move(100,150)
+        combo2.activated[str].connect(self.onActivated2)
+
+    def applySetting(self):#按钮的消息响应函数
+        print('button')
+        if self.phoneSystem == '安卓系统' and self.quizAppName == '冲顶大会':
+            self.killer.qr.load_setting(self.setting.android_setting)
+            return
+        if self.phoneSystem == '苹果系统' and self.quizAppName == '百万英雄':
+            self.killer.qr.load_setting(self.setting.apple_bw_setting)
+            return
+        print('没有适配')
+
+    def onActivated1(self,text):#下拉菜单1的消息响应函数
+        print('select '+text)
+        self.phoneSystem = text
+
+    def onActivated2(self, text):#下拉菜单2的消息响应函数
+        print('select ' + text)
+        self.quizAppName = text
 
     def savePic(self):
         dstROI = self.killer.getScreenImage()

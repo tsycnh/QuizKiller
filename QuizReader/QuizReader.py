@@ -28,6 +28,8 @@ class QuizReader:
             new_w = w.replace('\n','')
             tmp_dict.append(new_w)
         self.word_dict = tmp_dict
+    def load_setting(self,setting):
+        self.setting = setting
 
     def run(self,img):# 输入为手机截屏图像
         self.origin_img = cv2.cvtColor(np.asarray(img),cv2.COLOR_RGB2BGR)
