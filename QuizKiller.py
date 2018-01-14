@@ -43,7 +43,7 @@ class QuizKiller():
         # self.box = (100, 200)  #width height
         self.sWidth = GetSystemMetrics(0)
         self.sHeight = GetSystemMetrics(1)
-        self.qr = QuizReader.QuizReader(Setting.android_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
+        self.qr = QuizReader.QuizReader(Setting.android_setting,'Source/chnData_resnet_20180113_2.h5','Source/source.txt')
         self.pic_index =0
 
         print("info:load over")

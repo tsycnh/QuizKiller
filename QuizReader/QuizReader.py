@@ -2,7 +2,10 @@
 import cv2
 from PIL import Image
 import numpy as np
-from utils import *
+try:
+    from QuizReader.utils import *
+except:
+    from utils import *
 import keras
 import time
 # 动态适应不同的输入图像大小
