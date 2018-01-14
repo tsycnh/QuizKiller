@@ -22,7 +22,7 @@ class QuizReader:
     def load_model(self,model_path,source_path):
         keras.backend.clear_session()
         self.model = keras.models.load_model(model_path)
-        word_dict = open(source_path).readlines()
+        word_dict = open(source_path,encoding='utf-8').readlines()
         tmp_dict = []
         for w in word_dict:
             new_w = w.replace('\n','')
