@@ -29,13 +29,13 @@ def coordinate_transfer(rect):
     # rect = [x,y,w,h] =》[x,y,x+w,y+h]
     return [rect[0],rect[1],rect[0]+rect[2],rect[1]+rect[3]]
 
-# 删除面积过小的矩形
+# 删除周长过小的矩形
 def reduce_rects(rects,thresh_area):
     for i in range(len(rects)-1,-1,-1):
         rect = rects[i]
-        area = (rect[2]-rect[0])*(rect[3]-rect[1])
+        round = ((rect[2]-rect[0])+(rect[3]-rect[1]))*2
         # print('i:',i,'area:',area)
-        if area<=thresh_area:
+        if round<=thresh_area:
             del rects[i]
             # print('该删')
     return rects
@@ -43,8 +43,9 @@ def reduce_rects(rects,thresh_area):
 # 在图像中绘制矩形们
 def draw_rects(image,rects):
     image = image.copy()
-    for rs in rects:
-        image = cv2.rectangle(image, (rs[0], rs[1]), (rs[2], rs[3]), (0))
+    for i,rs in enumerate(rects):
+        cv2.rectangle(image, (rs[0], rs[1]), (rs[2], rs[3]), (0))
+        cv2.putText(image,text=str(i),org=(rs[0],rs[1]),fontFace=cv2.FONT_HERSHEY_SIMPLEX,fontScale=0.5,color=(0))
     return image
 
 # 按照new_long大小来
@@ -59,3 +60,9 @@ def image_resize(image,new_long):
         new_w = (new_h*w)/h
 
     return cv2.resize(image,(int(new_w),int(new_h)))
+
+def find_first_greater_value(value,list):
+    for i,v in enumerate(list):
+        if v>=value:
+            return i
+    return -1

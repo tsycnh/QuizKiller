@@ -2,7 +2,11 @@
 import cv2
 from PIL import Image
 import numpy as np
-from utils import *
+# from . import utils
+try:
+    from . import utils # "myapp" case
+except:
+    import utils # "__main__" case
 import keras
 import time
 # 动态适应不同的输入图像大小
@@ -11,6 +15,7 @@ import time
 class QuizReader:
     def __init__(self,setting,model_path,source_path):
         self.setting = setting
+        self.debug = False
         self.load_model(model_path,source_path)
 
     def load_model(self,model_path,source_path):
@@ -110,19 +115,23 @@ class QuizReader:
     def get_sentence_from_ROI(self,coord):
         print('ROI切割')
         self.crop_ROI(coord)
-        # cv2.imshow('crop',self.crop_img)
-        # cv2.waitKey()
-        # exit()
+        if self.debug:
+            cv2.imwrite('tmp/1首次ROI切割.jpg',self.crop_img)
+
         print('bbox提取')
         self.extract_bbox()
+        if self.debug:
+            img = utils.draw_rects(self.crop_img, self.all_rects)
+            cv2.imwrite('tmp/2首次bbox提取.jpg',img)
         print('rects排序')
         if len(self.all_rects)<=0:
             return ''
         elif len(self.all_rects)>1:
             self.sort_rects()
-            # img = draw_rects(self.crop_img,self.all_rects)
-            # cv2.imshow('画rects',img)
-            # cv2.waitKey()
+            if self.debug:
+                img = utils.draw_rects(self.crop_img,self.all_rects)
+                cv2.imwrite('tmp/3rects排序后.jpg',img)
+
         print('文字图片生成')
         self.get_single_words()
         if len(self.all_words)<=0:
@@ -156,7 +165,6 @@ class QuizReader:
     def crop_ROI(self,coord):
         x1,y1,x2,y2 = coord[0],coord[1],coord[2],coord[3]
         self.crop_img = self.origin_img_gray[y1:y2,x1:x2].copy()  # img[top: bottom, left: right]
-    # 获取每个文字的bbox
     def merge_line_y_rects(self,line_rects):
         while True:
             centers = []
@@ -170,7 +178,7 @@ class QuizReader:
                 index = g.index(min_gap)
                 r1 = line_rects[index]
                 r2 = line_rects[index+1]
-                new_rect = merge_rects(r1,r2)
+                new_rect = utils.merge_rects(r1,r2)
                 del line_rects[index+1]
                 del line_rects[index]
                 line_rects.append(new_rect)
@@ -179,6 +187,7 @@ class QuizReader:
         print('centers:',centers)
         print('gradients:',g)
         return line_rects
+    # 获取每个文字的bbox
     def extract_bbox(self):
         height, width = self.crop_img.shape
 
@@ -199,7 +208,7 @@ class QuizReader:
         all_rects = []
         for c in contours:
             pts = cv2.boundingRect(c)
-            rect = coordinate_transfer(pts)
+            rect = utils.coordinate_transfer(pts)
             all_rects.append(rect)
 
         # vis2 = draw_rects(vis2, all_rects)
@@ -210,9 +219,9 @@ class QuizReader:
                 for j in range(i + 1, len(all_rects)):
                     r1 = all_rects[i]
                     r2 = all_rects[j]
-                    if rect_interaction(r1, r2) > 0:  # 若相交
+                    if utils.rect_interaction(r1, r2) > 0:  # 若相交
                         # print('发现相交')
-                        new_r = merge_rects(r1, r2)
+                        new_r = utils.merge_rects(r1, r2)
                         del all_rects[j]
                         del all_rects[i]
                         all_rects.append(new_r)
@@ -224,7 +233,7 @@ class QuizReader:
 
         # vis3 = draw_rects(vis3, all_rects)
 
-        self.all_rects = reduce_rects(all_rects, thresh_area=self.setting['reduce_threshold']*self.setting['width'])
+        self.all_rects = utils.reduce_rects(all_rects, thresh_area=self.setting['reduce_threshold']*self.setting['width'])
         # vis4 = draw_rects(vis4,all_rects)
 
         # cv2.imshow('1', self.crop_img)
@@ -243,13 +252,20 @@ class QuizReader:
     # 按照文字的横向位置排序
     def sort_by_x(self,rects):
         return sorted(rects,key=lambda x:(x[0]+x[2])/2)
-    # 将所有文字框排成一行
+
+    # 计算梯度
     def calc_gradients(self,list):
         gradients = []
         for i in range(len(list)-1):
             g = list[i+1]-list[i]
             gradients.append(g)
         return gradients
+
+    # # 规范rect高度
+    # def regulate_rect_heights(self):
+
+
+    # 将所有文字框排成一行
     def sort_rects(self):
         self.all_rects = self.sort_by_y(self.all_rects)
         y_gradients = []
@@ -259,28 +275,69 @@ class QuizReader:
             y_value.append(self.all_rects[i][1])
             y_gradients.append(g)
         # print(self.all_rects)
-        # print(y_value)
-        # print('y_gradients : ',y_gradients)
 
-        max_y = max(y_gradients)
-        if max_y > self.line_height:# 分行
-            max_y_index = y_gradients.index(max_y)
-            line1 = self.all_rects[0:max_y_index+1]
-            line2 = self.all_rects[max_y_index+1:]
-            line1 = self.merge_line_y_rects(line1)
-            line2 = self.merge_line_y_rects(line2)
 
-            #merge
-            line1 = self.sort_by_x(line1)
-            line2 = self.sort_by_x(line2)
-            line1.extend(line2)
-            self.all_rects =line1
+        if self.debug:
+            img = utils.draw_rects(self.crop_img,self.all_rects)
+            cv2.imwrite('tmp/f_sort_rects_1.jpg',img)
+            print(y_value)
+            print('y_gradients : ',y_gradients)
+
+        # max_y = max(y_gradients)
+        max_y_index = utils.find_first_greater_value(self.line_height,y_gradients)
+        other_rects = self.all_rects
+        other_gradients = y_gradients
+        all_lines = []
+        if max_y_index>0:
+            while max_y_index >0:
+                line = other_rects[:max_y_index+1]
+                other_rects = other_rects[max_y_index+1:]
+                other_gradients = other_gradients[max_y_index+1:]
+                all_lines.append(line)
+                max_y_index = utils.find_first_greater_value(self.line_height,other_gradients)
+            all_lines.append(other_rects)
         else:
-            line = self.all_rects
-            line = self.merge_line_y_rects(line)
-            tmp = self.sort_by_x(line)
-            self.all_rects =tmp
+            all_lines = [self.all_rects]
+        # last_max_y_index = 0
+        # all_lines = []
+        # if max_y > self.line_height:
+        #     while max_y >self.line_height:# 多行的情况
+        #         line1 = self.all_rects[last_max_y_index:max_y_index+1]
+        #         all_lines.append(line1)
+        #         last_max_y_index = max_y_index
+        #         max_y = max(y_gradients[max_y_index+1:])
+        #     all_lines.append(self.all_rects[last_max_y_index+1:])
+        # else:
+        #     all_lines = [self.all_rects]
+        #
 
+
+        single_lines =[]
+        for single_line in all_lines:
+            line = self.merge_line_y_rects(single_line)
+            line = self.sort_by_x(line)
+            single_lines.extend(line)
+
+        self.all_rects = single_lines
+        # if max_y > self.line_height:# 分行
+        #     max_y_index = y_gradients.index(max_y)
+        #     line1 = self.all_rects[0:max_y_index+1]
+        #     line2 = self.all_rects[max_y_index+1:]
+        #     line1 = self.merge_line_y_rects(line1)
+        #     line2 = self.merge_line_y_rects(line2)
+        #
+        #     #merge
+        #     line1 = self.sort_by_x(line1)
+        #     line2 = self.sort_by_x(line2)
+        #     line1.extend(line2)
+        #     self.all_rects =line1
+        # else:
+        #     line = self.all_rects
+        #     line = self.merge_line_y_rects(line)
+        #     tmp = self.sort_by_x(line)
+        #     self.all_rects =tmp
+
+    # 获取单行文字
     def get_single_words(self,word_size=32):
         bg = np.zeros((word_size,word_size,1),dtype=np.uint8)
         bg += 255
@@ -290,7 +347,7 @@ class QuizReader:
         for rect in self.all_rects:
             word = self.crop_img[rect[1]:rect[3],rect[0]:rect[2]]
             # self.crop_img[rect[1]:rect[3], rect[0]:rect[2]] = 0
-            small_word = image_resize(word,32*ratio)
+            small_word = utils.image_resize(word,32*ratio)
             canvas = bg.copy()
             w = small_word.shape[1]
             h = small_word.shape[0]
@@ -323,8 +380,8 @@ if __name__ == '__main__':
     }
     android_setting = {
         'quiz':cd_coord,
-        'logo': '冲顶logo_android.jpg',
-        'answer': '冲顶answer_android.jpg',
+        'logo': 'cd_logo_android.jpg',
+        'answer': 'cd_answer_android.jpg',
         'width': 720,
         'height': 1280,
         'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
@@ -332,7 +389,7 @@ if __name__ == '__main__':
     }
     qr = QuizReader(android_setting,'chnData_resnet.h5','source.txt')
     t0 = time.time()
-    image = Image.open('test_images/冲顶0.jpg')
+    image = Image.open('test_images/冲顶3.jpg')
 
     s = qr.run(image)
     t1 = time.time()
