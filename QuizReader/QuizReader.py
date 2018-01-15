@@ -15,7 +15,7 @@ import time
 class QuizReader:
     def __init__(self,setting,model_path,source_path):
         self.setting = setting
-        self.debug = True
+        self.debug = False
         if not self.debug:
             self.load_model(model_path,source_path)
 
