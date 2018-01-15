@@ -80,6 +80,10 @@ def image_resize(image,new_long):
         new_w = (new_h*w)/h
 
     return cv2.resize(image,(int(new_w),int(new_h)))
+def image_resize_by_width(image,new_w):
+    h,w = image.shape[:2]
+    new_h = (new_w*h)/w
+    return cv2.resize(image,(int(new_w),int(new_h)))
 
 def find_first_greater_value(value,list):
     for i,v in enumerate(list):
