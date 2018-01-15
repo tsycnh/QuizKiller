@@ -15,7 +15,7 @@ import time
 class QuizReader:
     def __init__(self,setting,model_path,source_path):
         self.setting = setting
-        self.debug = False
+        self.debug = True
         if not self.debug:
             self.load_model(model_path,source_path)
 
@@ -143,13 +143,13 @@ class QuizReader:
         print('ROI切割')
         self.crop_ROI(coord)
         if self.debug:
-            cv2.imwrite('tmp/1首次ROI切割.jpg',self.crop_img)
+            cv2.imwrite('tmp/'+str(time.time())+'1首次ROI切割.jpg',self.crop_img)
 
         print('bbox提取')
         self.extract_bbox()
         if self.debug:
             img = utils.draw_rects(self.crop_img, self.all_rects)
-            cv2.imwrite('tmp/2首次bbox提取.jpg',img)
+            cv2.imwrite('tmp/'+str(time.time())+'2首次bbox提取.jpg',img)
         print('rects排序')
         if len(self.all_rects)<=0:
             return ''
@@ -157,7 +157,7 @@ class QuizReader:
             self.sort_rects()
             if self.debug:
                 img = utils.draw_rects(self.crop_img,self.all_rects)
-                cv2.imwrite('tmp/3rects排序后.jpg',img)
+                cv2.imwrite('tmp/'+str(time.time())+'3rects排序后.jpg',img)
 
         print('文字图片生成')
         self.get_single_words()
