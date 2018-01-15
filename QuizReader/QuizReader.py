@@ -85,7 +85,7 @@ class QuizReader:
 
             question_pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
             return question_pos
-        elif self.setting['quiz']['name'] == '百万英雄':
+        elif self.setting['quiz']['name'] == '百万英雄' or '芝士超人':
             logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
             img = self.origin_img.copy()
 
@@ -143,7 +143,7 @@ class QuizReader:
             # # cv2.imwrite('mask.jpg',img)
             # cv2.waitKey()
             return pos
-        elif self.setting['quiz']['name']=='百万英雄':
+        elif self.setting['quiz']['name']=='百万英雄' or '芝士超人':
             pos = self.calc_question_coord(ratio)
             return pos
 
@@ -382,6 +382,22 @@ if __name__ == '__main__':
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
         'gap':0,#如果字挨得比较近，这个值就应该小一些，最小为0.该值代表像素。过大会导致文字粘连
     }
+    android_zs_setting = {
+        'quiz': {
+            'name': '芝士超人',
+            'question': {'x1': -0.487, 'x2': 0.282, 'y1': -0.774, 'y2': -0.651},
+            'answer1': {'x1': -0.509, 'x2': 0.263, 'y1': -0.616, 'y2': -0.568},
+            'answer2': {'x1': -0.511, 'x2': 0.285, 'y1': -0.518, 'y2': -0.466},
+            'answer3': {'x1': -0.507, 'x2': 0.289, 'y1': -0.413, 'y2': -0.366}
+        },
+        'logo': 'zs_logo_android.jpg',
+        'answer': '',
+        'width': 0,
+        'height': 0,
+        'reduce_threshold': 50 / 750,  # 删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'confidence_threshold': 0.7,  # 高于此置信度的文字才会被输出
+        'gap': 0,  # 如果字挨得比较近，这个值就应该小一些，最小为0.该值代表像素。过大会导致文字粘连
+    }
     apple_bw_setting = {
         'quiz':{
             'name':'百万英雄',
@@ -396,10 +412,11 @@ if __name__ == '__main__':
         'height': 1334,
         'reduce_threshold':50/750,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
+        'gap':0
     }
-    qr = QuizReader(android_bw_setting,'chnData_resnet.h5','source.txt')
+    qr = QuizReader(android_zs_setting,'chnData_resnet.h5','source.txt')
     t0 = time.time()
-    image = Image.open('test_images/安卓/百万英雄/0.jpg')
+    image = Image.open('test_images/安卓/芝士超人/0.jpg')
 
     s = qr.run(image)
     t1 = time.time()
