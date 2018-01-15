@@ -34,9 +34,12 @@ class QuizReader:
     def run(self,img):# 输入为手机截屏图像
         self.origin_img = cv2.cvtColor(np.asarray(img),cv2.COLOR_RGB2BGR)
         print('origin shape',self.origin_img.shape)
-        new_w = self.setting['width']
-        new_h = int((new_w*self.origin_img.shape[0])/self.origin_img.shape[1])
-        self.origin_img = cv2.resize(self.origin_img,(new_w,new_h))
+        # new_w = self.setting['width']
+        # new_h = int((new_w*self.origin_img.shape[0])/self.origin_img.shape[1])
+        # self.origin_img = cv2.resize(self.origin_img,(new_w,new_h))
+        #
+        self.origin_img = utils.image_resize_by_width(self.origin_img,new_w=self.setting['width'])
+
         print('after shape',self.origin_img.shape)
         self.origin_img_gray = cv2.cvtColor(self.origin_img,code=cv2.COLOR_BGR2GRAY)
         self.line_height = (40/1334)*self.origin_img_gray.shape[0] #行间距
@@ -356,15 +359,15 @@ class QuizReader:
 
 if __name__ == '__main__':
     android_bw_setting = {
-        'name':'百万英雄',
         'quiz':{
+            'name': '百万英雄',
             'question':{'x1': -0.744, 'x2': 0.126, 'y1': 0.156, 'y2': 0.333},
             'answer1':{'x1': -0.691, 'x2': -0.013, 'y1': 0.359, 'y2': 0.419},
             'answer2':{'x1': -0.672, 'x2': 0.019, 'y1': 0.457, 'y2': 0.525},
             'answer3':{'x1': -0.672, 'x2': 0.05, 'y1': 0.564, 'y2': 0.618}
 
         },
-        'logo': 'bw_logo_android.jpg',
+        'logo': 'bw_logo_android.png',
         'answer': '',
         'width': 1080,
         'height': 1920,
@@ -386,7 +389,7 @@ if __name__ == '__main__':
         'reduce_threshold':50/750,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
-    qr = QuizReader(apple_bw_setting,'chnData_resnet.h5','source.txt')
+    qr = QuizReader(android_bw_setting,'chnData_resnet.h5','source.txt')
     t0 = time.time()
     image = Image.open('test_images/苹果/百万英雄/1.png')
 
