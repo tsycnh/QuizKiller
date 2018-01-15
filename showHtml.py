@@ -19,14 +19,9 @@ class myThread (threading.Thread):   #继承父类threading.Thread
     def run(self):
         # print('into thread')
         app = browser.QApplication(sys.argv)
-        print(app)
         window = browser.MainWindow()
-        # 显示窗口
         window.show()
-        self.window =window
-        self.myApp = app
-        print(window)
-        print('info:thread '+str(self.threadID)+' is running')
+        print('thread is running')
         app.exec_()
     # def run_web_view(self):
 

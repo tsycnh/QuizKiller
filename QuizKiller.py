@@ -15,25 +15,20 @@ import os
 # mShowHtml = showHtml.ShowHtml()
 
 class Setting:
-    cd_coord ={
-        'question':{
-            'x1': -500 / 720,  # 用来设置question的位置，前三个相对logo位置，y2相对answer位置
-            'x2': 120 / 720,
-            'y1': 170 / 1280,
-            'y2': -50 / 1280,
-        },
-        'answer1':{'x1': 0.052, 'x2': 0.809, 'y1': 0.016, 'y2': 0.063},
-        'answer2':{'x1': 0.054, 'x2': 0.808, 'y1': 0.101, 'y2': 0.146},
-        'answer3':{'x1': 0.051, 'x2': 0.797, 'y1': 0.185, 'y2': 0.23}
 
-    }
-    android_setting = {
-        'quiz':cd_coord,
-        'logo': 'QuizReader/cd_logo_android.jpg',
-        'answer': 'QuizReader/cd_answer_android.jpg',
+    android_cd_setting = {
+        'quiz':{
+            'name':'百万英雄',
+            'question':{'x1': -0.71, 'x2': 0.14, 'y1': 0.163, 'y2': 0.332},
+            'answer1':{'x1': -0.651, 'x2': 0.056, 'y1': 0.376, 'y2': 0.43},
+            'answer2':{'x1': -0.641, 'x2': 0.061, 'y1': 0.476, 'y2': 0.526},
+            'answer3':{'x1': -0.658, 'x2': 0.075, 'y1': 0.576, 'y2': 0.626}
+        },
+        'logo': './QuizReader/bw_logo_apple.png',
+        'answer':'',
         'width': 720,
         'height': 1280,
-        'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'reduce_threshold':50/750,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
     apple_bw_setting = {
@@ -44,7 +39,7 @@ class Setting:
             'answer2':{'x1': -0.641, 'x2': 0.061, 'y1': 0.476, 'y2': 0.526},
             'answer3':{'x1': -0.658, 'x2': 0.075, 'y1': 0.576, 'y2': 0.626}
         },
-        'logo': 'bw_logo_apple.png',
+        'logo': './QuizReader/bw_logo_apple.png',
         'answer':'',
         'width': 750,
         'height': 1334,
@@ -60,7 +55,7 @@ class QuizKiller():
         self.sHeight = GetSystemMetrics(1)
         self.qr = QuizReader.QuizReader(Setting.android_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
         self.pic_index =0
-
+        self.textlist = ['测试题干','选项1','选项2','选项3']
         print("info:load over")
     def getScreenImage(self):
 
