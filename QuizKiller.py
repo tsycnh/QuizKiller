@@ -29,7 +29,7 @@ class Setting:
             'answer2':{'x1': -0.672, 'x2': 0.019, 'y1': 0.457, 'y2': 0.525},
             'answer3':{'x1': -0.672, 'x2': 0.05, 'y1': 0.564, 'y2': 0.618}
         },
-        'logo': './QuizReader/bw_logo_android.png',
+        'logo': './QuizReader/bw_logo_android.jpg',
         'answer': '',
         'width': 1080,
         'height': 1920,

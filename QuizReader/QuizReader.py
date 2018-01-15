@@ -11,11 +11,13 @@ import keras
 import time
 # 动态适应不同的输入图像大小
 # 输入图像应为整个手机截屏图
+import os
+
 
 class QuizReader:
     def __init__(self,setting,model_path,source_path):
         self.setting = setting
-        self.debug = False
+        self.debug = True
         if not self.debug:
             self.load_model(model_path,source_path)
 
@@ -55,11 +57,20 @@ class QuizReader:
         answer3 = self.get_sentence_from_ROI(a3_coord)
 
         return question,answer1,answer2,answer3
-
+    def checkFileExist(self,filepath):
+        if os.path.exists(filepath) == False:
+            print("目录或文件不存在:" + filepath)
+            raise Exception("目录或文件不存在:" + filepath)
+        else:
+            return True
     def calc_question_coord(self,ratio):
         if self.setting['quiz']['name'] == '冲顶大会':
-            logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
-            answer = cv2.imread(self.setting['answer'])
+            logo_path =self.setting['logo']
+            self.checkFileExist(logo_path)
+            logo = cv2.imread(logo_path)  # img.shape => (h,w)
+            answer_path =self.setting['answer']
+            self.checkFileExist(answer_path)
+            answer = cv2.imread(answer_path)  # img.shape => (h,w)
             img = self.origin_img.copy()
 
             logo_h, logo_w, _ = logo.shape
@@ -81,9 +92,10 @@ class QuizReader:
             question_pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
             return question_pos
         elif self.setting['quiz']['name'] == '百万英雄':
-            logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
+            logo_path =self.setting['logo']
+            self.checkFileExist(logo_path)
+            logo = cv2.imread(logo_path)  # img.shape => (h,w)
             img = self.origin_img.copy()
-
             logo_h, logo_w, _ = logo.shape
             img_h, img_w, _ = img.shape
             r = cv2.matchTemplate(img, logo, method=cv2.TM_SQDIFF)
