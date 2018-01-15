@@ -60,20 +60,14 @@ class QuizReader:
         answer3 = self.get_sentence_from_ROI(a3_coord)
 
         return question,answer1,answer2,answer3
-<<<<<<< HEAD
 
-=======
->>>>>>> 1b422691ac242ef570b8436fabc107cf0cfb7eb3
     def checkFileExist(self,filepath):
         if os.path.exists(filepath) == False:
             print("目录或文件不存在:" + filepath)
             raise Exception("目录或文件不存在:" + filepath)
         else:
             return True
-<<<<<<< HEAD
 
-=======
->>>>>>> 1b422691ac242ef570b8436fabc107cf0cfb7eb3
     def calc_question_coord(self,ratio):
         if self.setting['quiz']['name'] == '冲顶大会':
             logo_path =self.setting['logo']
