@@ -9,6 +9,7 @@ except:
     import utils # "__main__" case
 import keras
 import time
+import os,shutil
 # 动态适应不同的输入图像大小
 # 输入图像应为整个手机截屏图
 
@@ -16,6 +17,10 @@ class QuizReader:
     def __init__(self,setting,model_path,source_path):
         self.setting = setting
         self.debug = True
+        if self.debug:
+            if(os.path.exists('./tmp/')):
+                shutil.rmtree('./tmp/')
+            os.mkdir('./tmp/')
         if not self.debug:
             self.load_model(model_path,source_path)
 
@@ -38,7 +43,7 @@ class QuizReader:
         # new_h = int((new_w*self.origin_img.shape[0])/self.origin_img.shape[1])
         # self.origin_img = cv2.resize(self.origin_img,(new_w,new_h))
         #
-        self.origin_img = utils.image_resize_by_width(self.origin_img,new_w=self.setting['width'])
+        self.origin_img = utils.image_resize_by_width(self.origin_img,new_w=750)
 
         print('after shape',self.origin_img.shape)
         self.origin_img_gray = cv2.cvtColor(self.origin_img,code=cv2.COLOR_BGR2GRAY)
@@ -56,21 +61,10 @@ class QuizReader:
 
         return question,answer1,answer2,answer3
 
-    def checkFileExist(self,filepath):
-        if os.path.exists(filepath) == False:
-            print("目录或文件不存在:" + filepath)
-            raise Exception("目录或文件不存在:" + filepath)
-        else:
-            return True
-
     def calc_question_coord(self,ratio):
         if self.setting['quiz']['name'] == '冲顶大会':
-            logo_path =self.setting['logo']
-            self.checkFileExist(logo_path)
-            logo = cv2.imread(logo_path)  # img.shape => (h,w)
-            answer_path =self.setting['answer']
-            self.checkFileExist(answer_path)
-            answer = cv2.imread(answer_path)  # img.shape => (h,w)
+            logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
+            answer = cv2.imread(self.setting['answer'])
             img = self.origin_img.copy()
 
             logo_h, logo_w, _ = logo.shape
@@ -92,10 +86,9 @@ class QuizReader:
             question_pos = (x1, y1, x2, y2)  # img[x1, y1, x2, y2]#左上角点，右下角点
             return question_pos
         elif self.setting['quiz']['name'] == '百万英雄':
-            logo_path =self.setting['logo']
-            self.checkFileExist(logo_path)
-            logo = cv2.imread(logo_path)  # img.shape => (h,w)
+            logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
             img = self.origin_img.copy()
+
             logo_h, logo_w, _ = logo.shape
             img_h, img_w, _ = img.shape
             r = cv2.matchTemplate(img, logo, method=cv2.TM_SQDIFF)
@@ -237,7 +230,7 @@ class QuizReader:
     def extract_bbox(self):
         height, width = self.crop_img.shape
 
-        kernel = np.ones((3, 3), np.uint8)
+        kernel = np.ones((4, 2), np.uint8)# （4，2）这个核大小会在竖直方向做腐蚀膨胀操作，比较适合距离较近的字
         erosion = cv2.erode(self.crop_img.copy(), kernel, iterations=1)
         dilation = cv2.dilate(erosion, kernel, iterations=1)
         th = cv2.threshold(dilation, thresh=200, maxval=255, type=cv2.THRESH_BINARY_INV)
@@ -258,11 +251,13 @@ class QuizReader:
             all_rects.append(rect)
 
         # vis2 = draw_rects(vis2, all_rects)
-        utils.merge_group_rects(all_rects,gap=1)
+        utils.merge_group_rects(all_rects,gap=self.setting['gap'])
 
 
         self.all_rects = utils.reduce_rects(all_rects, thresh_area=self.setting['reduce_threshold']*self.setting['width'])
         # vis4 = draw_rects(vis4,all_rects)
+        if self.debug:
+            cv2.imwrite('tmp/'+str(time.time())+'腐蚀膨胀后.jpg',dilation)
 
         # cv2.imshow('1', self.crop_img)
         # cv2.imshow('2', erosion)
@@ -383,8 +378,9 @@ if __name__ == '__main__':
         'answer': '',
         'width': 1080,
         'height': 1920,
-        'reduce_threshold':50/1080,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'reduce_threshold':50/750,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
+        'gap':0,#如果字挨得比较近，这个值就应该小一些，最小为0.该值代表像素。过大会导致文字粘连
     }
     apple_bw_setting = {
         'quiz':{
@@ -403,7 +399,7 @@ if __name__ == '__main__':
     }
     qr = QuizReader(android_bw_setting,'chnData_resnet.h5','source.txt')
     t0 = time.time()
-    image = Image.open('test_images/苹果/百万英雄/1.png')
+    image = Image.open('test_images/安卓/百万英雄/0.jpg')
 
     s = qr.run(image)
     t1 = time.time()
