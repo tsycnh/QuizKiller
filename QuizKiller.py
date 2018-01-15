@@ -38,7 +38,7 @@ class Setting:
         'answer': 'QuizReader/cd_answer_android.jpg',
         'width': 720,
         'height': 1280,
-        'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'reduce_threshold':50/750,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
     apple_bw_setting = {
@@ -49,7 +49,7 @@ class Setting:
             'answer2':{'x1': -0.641, 'x2': 0.061, 'y1': 0.476, 'y2': 0.526},
             'answer3':{'x1': -0.658, 'x2': 0.075, 'y1': 0.576, 'y2': 0.626}
         },
-        'logo': 'bw_logo_apple.png',
+        'logo': './QuizReader/bw_logo_apple.png',
         'answer':'',
         'width': 750,
         'height': 1334,
@@ -69,7 +69,7 @@ class QuizKiller():
             self.sWidth,self.sHeight = 1440,900# wx.GetDisplaySize()
         self.qr = QuizReader.QuizReader(Setting.android_cd_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
         self.pic_index =0
-
+        self.textlist = ['测试题干','选项1','选项2','选项3']
         print("info:load over")
     def getScreenImage(self):
 

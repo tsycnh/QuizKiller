@@ -21,7 +21,7 @@ class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # 设置窗口标题
-        self.setWindowTitle('My Browser')
+        self.setWindowTitle('Browser:'+str(sys.argv[1][0:]))
         # 设置窗口图标
         self.setWindowIcon(QIcon('icons/penguin.png'))
         # 设置窗口大小900*600
