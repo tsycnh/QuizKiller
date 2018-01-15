@@ -1,13 +1,18 @@
+#!/usr/bin/python
 import screen_grab
 from pynput import keyboard
 from PIL import ImageGrab
 from QuizReader import QuizReader
-import cv2
+# import cv2
 import time
 from myClient import *
-from win32api import GetSystemMetrics
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+try:
+    from win32api import GetSystemMetrics
+except:
+    import wx
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QPushButton,QWidget,QApplication,QComboBox
 import myEvent
 import sys
 import os
@@ -15,8 +20,10 @@ import os
 # mShowHtml = showHtml.ShowHtml()
 
 class Setting:
-    cd_coord ={
+    android_cd_setting = {
+        'quiz':{
         'question':{
+            'name':'冲顶大会',
             'x1': -500 / 720,  # 用来设置question的位置，前三个相对logo位置，y2相对answer位置
             'x2': 120 / 720,
             'y1': 170 / 1280,
@@ -26,9 +33,7 @@ class Setting:
         'answer2':{'x1': 0.054, 'x2': 0.808, 'y1': 0.101, 'y2': 0.146},
         'answer3':{'x1': 0.051, 'x2': 0.797, 'y1': 0.185, 'y2': 0.23}
 
-    }
-    android_setting = {
-        'quiz':cd_coord,
+    },
         'logo': 'QuizReader/cd_logo_android.jpg',
         'answer': 'QuizReader/cd_answer_android.jpg',
         'width': 720,
@@ -56,9 +61,13 @@ class Setting:
 class QuizKiller():
     def __init__(self):
         # self.box = (100, 200)  #width height
-        self.sWidth = GetSystemMetrics(0)
-        self.sHeight = GetSystemMetrics(1)
-        self.qr = QuizReader.QuizReader(Setting.android_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
+        try:
+            self.sWidth = GetSystemMetrics(0)
+            self.sHeight = GetSystemMetrics(1)
+        except:
+            # app = wx.App(False)
+            self.sWidth,self.sHeight = 1440,900# wx.GetDisplaySize()
+        self.qr = QuizReader.QuizReader(Setting.android_cd_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
         self.pic_index =0
 
         print("info:load over")
