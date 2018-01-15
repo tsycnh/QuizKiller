@@ -1,13 +1,18 @@
+#!/usr/bin/python
 import screen_grab
 from pynput import keyboard
 from PIL import ImageGrab
 from QuizReader import QuizReader
-import cv2
+# import cv2
 import time
 from myClient import *
-from win32api import GetSystemMetrics
-from PyQt5.QtCore import *
-from PyQt5.QtWidgets import *
+try:
+    from win32api import GetSystemMetrics
+except:
+    import wx
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QPushButton,QWidget,QApplication,QComboBox
 import myEvent
 import sys
 import os
@@ -15,7 +20,6 @@ import os
 # mShowHtml = showHtml.ShowHtml()
 
 class Setting:
-
     android_cd_setting = {
         'quiz':{
             'name':'冲顶大会',
@@ -56,9 +60,13 @@ class Setting:
 class QuizKiller():
     def __init__(self):
         # self.box = (100, 200)  #width height
-        self.sWidth = GetSystemMetrics(0)
-        self.sHeight = GetSystemMetrics(1)
-        self.qr = QuizReader.QuizReader(Setting.android_cd_setting,'Source/chnData_resnet_20180114_ep70.h5','Source/source.txt')
+        try:
+            self.sWidth = GetSystemMetrics(0)
+            self.sHeight = GetSystemMetrics(1)
+        except:
+            # app = wx.App(False)
+            self.sWidth,self.sHeight = 1440,900# wx.GetDisplaySize()
+        self.qr = QuizReader.QuizReader(Setting.android_cd_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
         self.pic_index =0
         self.textlist = ['测试题干','选项1','选项2','选项3']
         print("info:load over")
