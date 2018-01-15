@@ -29,7 +29,7 @@ class Setting:
             'answer2':{'x1': -0.672, 'x2': 0.019, 'y1': 0.457, 'y2': 0.525},
             'answer3':{'x1': -0.672, 'x2': 0.05, 'y1': 0.564, 'y2': 0.618}
         },
-        'logo': './QuizReader/bw_logo_android.jpg',
+        'logo': './Source/bw_logo_android.jpg',
         'answer': '',
         'width': 1080,
         'height': 1920,
@@ -45,7 +45,7 @@ class Setting:
             'answer2': {'x1': -0.511, 'x2': 0.285, 'y1': -0.518, 'y2': -0.466},
             'answer3': {'x1': -0.507, 'x2': 0.289, 'y1': -0.413, 'y2': -0.366}
         },
-        'logo': './QuizReader/zs_logo_android.jpg',
+        'logo': './Source/zs_logo_android.jpg',
         'answer': '',
         'width': 0,
         'height': 0,
@@ -62,7 +62,7 @@ class Setting:
             'answer2':{'x1': -0.641, 'x2': 0.061, 'y1': 0.476, 'y2': 0.526},
             'answer3':{'x1': -0.658, 'x2': 0.075, 'y1': 0.576, 'y2': 0.626}
         },
-        'logo': './QuizReader/bw_logo_apple.png',
+        'logo': './Source/bw_logo_apple.png',
         'answer':'',
         'width': 750,
         'height': 1334,
