@@ -22,19 +22,20 @@ import os
 class Setting:
 
     android_bw_setting = {
-        'name':'百万英雄',
         'quiz':{
+            'name': '百万英雄',
             'question':{'x1': -0.744, 'x2': 0.126, 'y1': 0.156, 'y2': 0.333},
             'answer1':{'x1': -0.691, 'x2': -0.013, 'y1': 0.359, 'y2': 0.419},
             'answer2':{'x1': -0.672, 'x2': 0.019, 'y1': 0.457, 'y2': 0.525},
             'answer3':{'x1': -0.672, 'x2': 0.05, 'y1': 0.564, 'y2': 0.618}
         },
-        'logo': 'bw_logo_android.jpg',
+        'logo': './QuizReader/bw_logo_android.jpg',
         'answer': '',
         'width': 1080,
         'height': 1920,
-        'reduce_threshold':50/1080,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'reduce_threshold':50/750,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
+        'gap':0
     }
     apple_bw_setting = {
         'quiz':{
@@ -62,7 +63,7 @@ class QuizKiller():
         except:
             # app = wx.App(False)
             self.sWidth,self.sHeight = 1440,900# wx.GetDisplaySize()
-        self.qr = QuizReader.QuizReader(Setting.android_cd_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
+        self.qr = QuizReader.QuizReader(Setting.android_bw_setting,'Source/chnData_resnet_20180113_1.h5','Source/source.txt')
         self.pic_index =0
         self.textlist = ['测试题干','选项1','选项2','选项3']
         print("info:load over")

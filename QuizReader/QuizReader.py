@@ -16,7 +16,7 @@ import os,shutil
 class QuizReader:
     def __init__(self,setting,model_path,source_path):
         self.setting = setting
-        self.debug = True
+        self.debug = False
         if self.debug:
             if(os.path.exists('./tmp/')):
                 shutil.rmtree('./tmp/')
