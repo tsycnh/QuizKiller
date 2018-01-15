@@ -61,6 +61,13 @@ class QuizReader:
 
         return question,answer1,answer2,answer3
 
+    def checkFileExist(self,filepath):
+        if os.path.exists(filepath) == False:
+            print("目录或文件不存在:" + filepath)
+            raise Exception("目录或文件不存在:" + filepath)
+        else:
+            return True
+
     def calc_question_coord(self,ratio):
         if self.setting['quiz']['name'] == '冲顶大会':
             logo = cv2.imread(self.setting['logo'])  # img.shape => (h,w)
