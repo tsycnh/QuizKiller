@@ -2,9 +2,9 @@
 import cv2
 
 if __name__ == '__main__':
-    img = cv2.imread('./test_images/苹果/百万英雄/0.png')
+    img = cv2.imread('./test_images/安卓/百万英雄/0.jpg')
     cv2.imshow('img',img)
-    logo = cv2.imread('bw_logo_apple.png')
+    logo = cv2.imread('bw_logo_android.png')
 
     answer_h, answer_w, _ = logo.shape
     img_h, img_w, _ = img.shape

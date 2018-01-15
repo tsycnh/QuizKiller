@@ -355,25 +355,20 @@ class QuizReader:
             # i+=1
 
 if __name__ == '__main__':
-    cd_coord ={
-        'question':{
-            'x1': -500 / 720,  # 用来设置question的位置，前三个相对logo位置，y2相对answer位置
-            'x2': 120 / 720,
-            'y1': 170 / 1280,
-            'y2': -50 / 1280,
-        },
-        'answer1':{'x1': 0.052, 'x2': 0.809, 'y1': 0.016, 'y2': 0.063},
-        'answer2':{'x1': 0.054, 'x2': 0.808, 'y1': 0.101, 'y2': 0.146},
-        'answer3':{'x1': 0.051, 'x2': 0.797, 'y1': 0.185, 'y2': 0.23}
+    android_bw_setting = {
+        'name':'百万英雄',
+        'quiz':{
+            'question':{'x1': -0.744, 'x2': 0.126, 'y1': 0.156, 'y2': 0.333},
+            'answer1':{'x1': -0.691, 'x2': -0.013, 'y1': 0.359, 'y2': 0.419},
+            'answer2':{'x1': -0.672, 'x2': 0.019, 'y1': 0.457, 'y2': 0.525},
+            'answer3':{'x1': -0.672, 'x2': 0.05, 'y1': 0.564, 'y2': 0.618}
 
-    }
-    android_setting = {
-        'quiz':cd_coord,
-        'logo': 'cd_logo_android.jpg',
-        'answer': 'cd_answer_android.jpg',
-        'width': 720,
-        'height': 1280,
-        'reduce_threshold':50/720,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        },
+        'logo': 'bw_logo_android.jpg',
+        'answer': '',
+        'width': 1080,
+        'height': 1920,
+        'reduce_threshold':50/1080,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
     apple_bw_setting = {
