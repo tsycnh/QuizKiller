@@ -36,6 +36,23 @@ class Setting:
         'reduce_threshold':50/1080,#删掉过小的bbox，此值越小，保留的最小bbox就会越小
         'confidence_threshold':0.7,#高于此置信度的文字才会被输出
     }
+    android_zs_setting = {
+        'quiz': {
+            'name': '芝士超人',
+            'question': {'x1': -0.487, 'x2': 0.282, 'y1': -0.774, 'y2': -0.651},
+            'answer1': {'x1': -0.509, 'x2': 0.263, 'y1': -0.616, 'y2': -0.568},
+            'answer2': {'x1': -0.511, 'x2': 0.285, 'y1': -0.518, 'y2': -0.466},
+            'answer3': {'x1': -0.507, 'x2': 0.289, 'y1': -0.413, 'y2': -0.366}
+        },
+        'logo': './QuizReader/zs_logo_android.jpg',
+        'answer': '',
+        'width': 0,
+        'height': 0,
+        'reduce_threshold': 50 / 750,  # 删掉过小的bbox，此值越小，保留的最小bbox就会越小
+        'confidence_threshold': 0.7,  # 高于此置信度的文字才会被输出
+        'gap': 0,  # 如果字挨得比较近，这个值就应该小一些，最小为0.该值代表像素。过大会导致文字粘连
+    }
+
     apple_bw_setting = {
         'quiz':{
             'name':'百万英雄',
